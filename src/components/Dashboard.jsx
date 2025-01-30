@@ -22,19 +22,17 @@ function Dashboard() {
     const savedEndDate = Cookies.get("endDate");
     const savedAgeRange = Cookies.get("ageRange") || "all";
     const savedGender = Cookies.get("gender") || "all";
-    const savedFeature = Cookies.get("feature") || "";
+    const savedFeature = Cookies.get("feature") || "all";
 
-    if (savedStartDate) setFilters({
-      ...filters,
-      startDate: dayjs(savedStartDate), // Update only the endDate
-    });
-    if (savedEndDate) setFilters({
-      ...filters,
-      endDate: dayjs(savedEndDate), // Update only the endDate
-    });
-
-    setFilters({ ...filters, ageRange: savedAgeRange, gender: savedGender, feature: savedFeature });
-  }, [filters]);
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      startDate: savedStartDate ? dayjs(savedStartDate) : null,
+      endDate: savedEndDate ? dayjs(savedEndDate) : null,
+      ageRange: savedAgeRange,
+      gender: savedGender,
+      feature: savedFeature,
+    }));
+  }, []); 
 
   const filteredData = data.filter((item) => {
     const itemDate = dayjs(item.Day, "D/M/YYYY");
@@ -52,15 +50,16 @@ function Dashboard() {
 
   const totalTime = {};
   const dateWiseTime = {};
+
   filteredData.forEach((item) => {
+    if (!dateWiseTime[item["Day"]]) {
+      dateWiseTime[item["Day"]] = {}; 
+    }
+
     Object.keys(item).forEach((key) => {
       if (!["Day", "Age", "Gender"].includes(key)) {
         totalTime[key] = (totalTime[key] || 0) + item[key];
-        dateWiseTime[item["Day"]][key] =
-          (dateWiseTime[item["Day"]][key] || 0) + item[key];
-      }
-      if ("Day" === key && !dateWiseTime[item[key]]) {
-        dateWiseTime[item[key]] = {};
+        dateWiseTime[item["Day"]][key] = (dateWiseTime[item["Day"]][key] || 0) + item[key];
       }
     });
   });
@@ -69,16 +68,22 @@ function Dashboard() {
   const values = Object.values(totalTime);
 
   function handleBarChartClick(columnName) {
-    setFilters({...filters, feature: columnName});
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      feature: columnName,
+    }));
     Cookies.set("feature", columnName);
   }
 
   let lineChartY = [];
   let lineChartX = [];
-  for (let key in dateWiseTime) {
-    if (filters.feature !== "") {
-      lineChartY.push(dateWiseTime[key][filters.feature]);
-      lineChartX.push(key);
+
+  if (filters.feature !== "all") {
+    for (let key in dateWiseTime) {
+      if (dateWiseTime[key][filters.feature] !== undefined) {
+        lineChartY.push(dateWiseTime[key][filters.feature]);
+        lineChartX.push(key);
+      }
     }
   }
 
@@ -107,25 +112,18 @@ function Dashboard() {
         textAlign: "center",
       }}
     >
-    <Filters
-          filters={filters}
-          setFilters={setFilters}
-          resetPreferences={resetPreferences}
-        />
+      <Filters filters={filters} setFilters={setFilters} resetPreferences={resetPreferences} />
       <div className="chart-container">
-  
         <div className="chart">
-        <BarChart
-            series={[{label: "Features", data: values }]}
+          <BarChart
+            series={[{ label: "Features", data: values }]}
             height={400}
             yAxis={[{ data: categories, label: "Features", scaleType: "band" }]}
             xAxis={[{ label: "Time" }]}
             layout="horizontal"
             onClick={(event) => {
               const barElement = event.target;
-              const allBars = Array.from(
-                document.querySelectorAll(".MuiBarElement-root")
-              );
+              const allBars = Array.from(document.querySelectorAll(".MuiBarElement-root"));
               const clickedIndex = allBars.indexOf(barElement);
 
               if (clickedIndex >= 0) {
@@ -136,12 +134,12 @@ function Dashboard() {
           />
         </div>
         <div className="chart">
-        <LineChart
+          <LineChart
             xAxis={[{ data: lineChartX, label: "Date", scaleType: "band" }]}
             yAxis={[{ label: "Time" }]}
             series={[
               {
-                label: `${filters.feature}`,
+                label: filters.feature !== "all" ? filters.feature : "Select a feature",
                 data: lineChartY,
               },
             ]}

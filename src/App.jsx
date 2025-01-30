@@ -1,4 +1,3 @@
-import './App.css'
 import DashboardLayoutWrapper from './components/DashboardLayoutWrapper'
 
 function App() {
