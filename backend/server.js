@@ -1,14 +1,21 @@
+require("dotenv").config();
 const express = require("express");
-const fs = require("fs").promises;  // Use the asynchronous fs API
+const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
-const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const USERS_FILE = path.join(__dirname, "users.json");
 
-// CORS Configuration (Allow Local + Deployed Frontend)
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+
+// CORS Configuration
 const allowedOrigins = [
   "http://localhost:5173",  
   "https://frontend-zeta-gray-43.vercel.app/",  
@@ -29,35 +36,14 @@ app.use(
   })
 );
 
-// Ensure users.json Exists
-const ensureUsersFileExists = async () => {
-  try {
-    await fs.access(USERS_FILE);
-  } catch (error) {
-    await fs.writeFile(USERS_FILE, "[]");
-  }
-};
+// User Schema
+const userSchema = new mongoose.Schema({
+  name: String,
+  email: { type: String, unique: true },
+  password: String,
+});
 
-// Load users from file
-const loadUsers = async () => {
-  await ensureUsersFileExists();
-  try {
-    const data = await fs.readFile(USERS_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    console.error("Error loading users:", error);
-    return [];
-  }
-};
-
-// Save users to file
-const saveUsers = async (users) => {
-  try {
-    await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
-  } catch (error) {
-    console.error("Error saving users:", error);
-  }
-};
+const User = mongoose.model("User", userSchema);
 
 // Sign Up Route
 app.post("/signup", async (req, res) => {
@@ -66,16 +52,15 @@ app.post("/signup", async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  let users = await loadUsers();
-  if (users.some((user) => user.email === email)) {
-    return res.status(400).json({ message: "User already exists" });
-  }
-
   try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = { name, email, password: hashedPassword };
-    users.push(newUser);
-    await saveUsers(users);
+    const newUser = new User({ name, email, password: hashedPassword });
+    await newUser.save();
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -90,22 +75,24 @@ app.post("/signin", async (req, res) => {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
-  let users = await loadUsers();
-  const user = users.find((user) => user.email === email);
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
 
-  if (!user) {
-    return res.status(400).json({ message: "Invalid email or password" });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    res.status(200).json({
+      message: "Login successful",
+      user: { name: user.name, email: user.email },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error logging in" });
   }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    return res.status(400).json({ message: "Invalid email or password" });
-  }
-
-  res.status(200).json({
-    message: "Login successful",
-    user: { name: user.name, email: user.email },
-  });
 });
 
 // Start Server
