@@ -13,5 +13,10 @@
     "name": "Jija Sarak",
     "email": "jijasarak20@navgurukul.org",
     "password": "$2b$10$OapTZLaJk9AKJnnZ0.K89ez1D818X8IMGRGiBHzYg7qjgFL8qdiTu"
+  },
+  {
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "password": "$2b$10$65HtdieDs9YJxTsh2Yko2eO3NoRR5aB6g.QQgpVUdbZvReiS2OaRq"
   }
 ]
