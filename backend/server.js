@@ -2,16 +2,45 @@ const express = require("express");
 const fs = require("fs").promises;  // Use the asynchronous fs API
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const path = require("path");
 
 const app = express();
-const PORT = 5000;
-const USERS_FILE = "users.json";
+const PORT = process.env.PORT || 5000;
+const USERS_FILE = path.join(__dirname, "users.json");
+
+// CORS Configuration (Allow Local + Deployed Frontend)
+const allowedOrigins = [
+  "http://localhost:5173",  // Local frontend
+  "https://your-frontend.vercel.app",  // Replace with actual Vercel frontend URL
+];
 
 app.use(express.json());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
 
-// Load users from file (async version)
+// Ensure users.json Exists
+const ensureUsersFileExists = async () => {
+  try {
+    await fs.access(USERS_FILE);
+  } catch (error) {
+    await fs.writeFile(USERS_FILE, "[]");
+  }
+};
+
+// Load users from file
 const loadUsers = async () => {
+  await ensureUsersFileExists();
   try {
     const data = await fs.readFile(USERS_FILE, "utf-8");
     return JSON.parse(data);
@@ -21,7 +50,7 @@ const loadUsers = async () => {
   }
 };
 
-// Save users to file (async version)
+// Save users to file
 const saveUsers = async (users) => {
   try {
     await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
@@ -81,5 +110,5 @@ app.post("/signin", async (req, res) => {
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`✅ Server is running on http://localhost:${PORT}`);
+  console.log(`✅ Server is running on port ${PORT}`);
 });

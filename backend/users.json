@@ -1,22 +1,7 @@
 [
   {
-    "name": "Pooja",
-    "email": "poojasarak@gmail.com",
-    "password": "$2b$10$4ZHzwGSzroCAub3YGkUuPOgPB4/iOssKhuKIXffmaTDd2avgVCO12"
-  },
-  {
-    "name": "Komal ",
-    "email": "komal23@navgurukul.org",
-    "password": "$2b$10$SFT6K/wJV7sLJ2xxqUmaoeefhE965XRilpeflIih0yNbCljXVgKHO"
-  },
-  {
-    "name": "Jija Sarak",
-    "email": "jijasarak20@navgurukul.org",
-    "password": "$2b$10$OapTZLaJk9AKJnnZ0.K89ez1D818X8IMGRGiBHzYg7qjgFL8qdiTu"
-  },
-  {
-    "name": "John Doe",
-    "email": "johndoe@example.com",
-    "password": "$2b$10$65HtdieDs9YJxTsh2Yko2eO3NoRR5aB6g.QQgpVUdbZvReiS2OaRq"
+    "name": "Kajal",
+    "email": "kajalkumari@navgurukul.org",
+    "password": "$2b$10$l0nFBro5Jwq8F.B53zzBE.1GANinkV7pLWjvHjTvXWon29mlRsAR."
   }
 ]
