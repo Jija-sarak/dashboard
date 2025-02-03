@@ -31,7 +31,7 @@ function LoginPage({ onSignIn }) {
       const endpoint = isSignup ? "/signup" : "/signin";
       const requestBody = isSignup ? credentials : { email: credentials.email, password: credentials.password };
 
-      const response = await fetch(`backend-ghdjw3pym-jija-saraks-projects.vercel.app${endpoint}`, {
+      const response = await fetch(`https://backend-three-coral-12.vercel.app${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),

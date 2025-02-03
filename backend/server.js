@@ -11,7 +11,7 @@ const USERS_FILE = path.join(__dirname, "users.json");
 // CORS Configuration (Allow Local + Deployed Frontend)
 const allowedOrigins = [
   "http://localhost:5173",  
-  "https://frontend-8ymbgq1u0-jija-saraks-projects.vercel.app/",  
+  "https://frontend-zeta-gray-43.vercel.app/",  
 ];
 
 app.use(express.json());
