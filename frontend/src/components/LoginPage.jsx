@@ -7,7 +7,7 @@ function LoginPage({ onSignIn }) {
   const [credentials, setCredentials] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   
-  const apiBaseUrl = "http://localhost:5000"
+  const apiBaseUrl = "https://backend-three-coral-12.vercel.app"
   const toggleAuthMode = () => {
     setIsSignup((prev) => !prev);
     setError("");
