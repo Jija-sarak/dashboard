@@ -15,7 +15,8 @@ mongoose
 
 // CORS Configuration
 const allowedOrigins = [
-  "https://frontend-zeta-gray-43.vercel.app",
+  "http://localhost:5173", // Local Frontend
+  "https://frontend-zeta-gray-43.vercel.app", // Deployed Frontend
 ];
 
 app.use(
@@ -88,6 +89,11 @@ app.post("/signin", async (req, res) => {
     res.status(500).json({ message: "Error logging in" });
   }
 });
+
+// Start Server (ONLY for Local Development)
+if (process.env.NODE_ENV !== "production") {
+  app.listen(process.env.PORT, () => console.log(`✅ Server running on port ${process.env.PORT}`));
+}
 
 // Required for Vercel Deployment
 module.exports = app;
