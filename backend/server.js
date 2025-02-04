@@ -3,31 +3,31 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// MongoDB Connection
-console.log("Connecting to MongoDB...");
+// ✅ MongoDB Connection
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB Connection Error:", err));
 
-// CORS Configuration
+// ✅ CORS Configuration
 const allowedOrigins = [
   "http://localhost:5173",
   "https://frontend-zeta-gray-43.vercel.app",
 ];
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
         callback(null, true);
       } else {
-        console.warn("❌ CORS Blocked:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -35,7 +35,7 @@ app.use(
   })
 );
 
-// User Schema & Model
+// ✅ User Schema & Model
 const userSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
@@ -44,7 +44,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 
-// Sign Up Route
+// ✅ Sign Up Route
 app.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -67,7 +67,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-// Sign In Route
+// ✅ Sign In Route
 app.post("/signin", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -88,10 +88,10 @@ app.post("/signin", async (req, res) => {
   }
 });
 
-// Start Server (ONLY for Local Development)
+// ✅ Local Deployment: Start Server
 if (process.env.NODE_ENV !== "production") {
-  app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+  app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
 }
 
-// Required for Vercel Deployment
+// ✅ Required for Vercel Deployment
 module.exports = app;

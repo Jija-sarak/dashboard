@@ -82,6 +82,8 @@ This is a React-based interactive dashboard that provides visual data insights u
     npm init -y
     npm install express body-parser bcryptjs fs cors
     npm install bcrypt --save
+    npm install cookie-parser
+    
 ```
 
 **Start the project**

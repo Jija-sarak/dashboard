@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState} from "react";
 import PropTypes from "prop-types";
 import "./LoginPage.css";
 
@@ -6,11 +6,12 @@ function LoginPage({ onSignIn }) {
   const [isSignup, setIsSignup] = useState(false);
   const [credentials, setCredentials] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
-
+  
+  const apiBaseUrl = "https://backend-three-coral-12.vercel.app"
   const toggleAuthMode = () => {
     setIsSignup((prev) => !prev);
     setError("");
-    setCredentials({ name: "", email: "", password: "" }); 
+    setCredentials({ name: "", email: "", password: "" });
   };
 
   const handleInputChange = (e) => {
@@ -31,9 +32,11 @@ function LoginPage({ onSignIn }) {
       const endpoint = isSignup ? "/signup" : "/signin";
       const requestBody = isSignup ? credentials : { email: credentials.email, password: credentials.password };
 
-      const response = await fetch(`https://backend-three-coral-12.vercel.app${endpoint}`, {
+      const response = await fetch(`${apiBaseUrl}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        mode: "cors",
         body: JSON.stringify(requestBody),
       });
 
